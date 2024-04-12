@@ -1,0 +1,32 @@
+# We are using pandas and scipy.stats to calculate the z-score and assess the association between 'Lottery' and 'Guaranteed Incentive' with 'Doses distributed per 100k pop' per 'State
+
+import pandas as pd
+from scipy import stats
+
+# Load the dataset
+file_path = "C:\\Users\\lexiw\\OneDrive\\Desktop\\USA_convid 19_vaccines_2023 (3).csv"
+data = pd.read_csv(file_path)
+
+# Filter the dataset for 'Yes' values in 'Lottery' and 'Guaranteed Incentive'
+lottery_yes = data[data['Lottery'] == 'Yes']
+guaranteed_incentive_yes = data[data['Guaranteed Incentive'] == 'Yes']
+
+# Calculate z-scores for 'Doses distributed per 100k pop' for each 'State'
+z_scores_lottery = stats.zscore(lottery_yes['Doses distributed per 100k pop'])
+z_scores_guaranteed_incentive = stats.zscore(guaranteed_incentive_yes['Doses distributed per 100k pop'])
+
+# Assess association using z-scores
+z_score_association = stats.ttest_ind(z_scores_lottery, z_scores_guaranteed_incentive)
+
+print("T-test result:")
+print(z_score_association)
+
+T-test result:
+TtestResult(statistic=1.7761196559903017e-15, pvalue=0.9999999999999987, df=35.0)
+
+# We started by filtering the dataset for 'Yes' values in 'Lottery' and 'Guaranteed Incentive', calculating the z-scores for 'Doses distributed per 100k pop' for each 'State' for both 'Lottery' and 'Guaranteed Incentive', and then assess the association using a t-test between the z-scores of the two group
+# The t-test result indicates a statistic value of ~ 1.776e-15 and a p-value of ~ 0.9999999999999987.
+
+Since the p-value is greater than the significance level of 0.05, we fail to reject the null hypothesis. This suggests that there is no significant difference in the means of 'Doses distributed per 100k pop' between the groups with 'Lottery' and 'Guaranteed Incentive' as 'Yes' compared to those as 'No'.
+
+Therefore, based on this analysis, there doesn't seem to be a significant association between 'Lottery' and 'Guaranteed Incentive' and the distribution of doses per 100k population across states.
