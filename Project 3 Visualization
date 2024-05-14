@@ -1,0 +1,35 @@
+import pandas as pd
+import matplotlib.pyplot as plt
+import seaborn as sns
+
+
+bins = pd.cut(combined_data['case_count'], bins=[0, 5000, 10000, 20000, 30000, 40000])
+grouped_data = combined_data.groupby(bins)['death_count'].mean().reset_index()
+
+plt.figure(figsize=(10, 6))
+sns.barplot(x='case_count', y='death_count', data=grouped_data)
+plt.title('Average Death Count by Case Count Ranges')
+plt.xlabel('Case Count Ranges')
+plt.ylabel('Average Death Count')
+plt.xticks(rotation=45)
+plt.show()
+ #-----------------------------------------------------------
+
+plt.figure(figsize=(10, 6))
+sns.regplot(x='case_count', y='death_count', data=combined_data, scatter_kws={'alpha':0.5}, line_kws={'color':'red'})
+plt.title('Scatter Plot of Case Count vs. Death Count with Regression Line')
+plt.xlabel('Case Count')
+plt.ylabel('Death Count')
+plt.grid(True)
+plt.show()
+
+#-------------------------------------------------------------
+plt.figure(figsize=(10, 6))
+plt.hexbin(combined_data['case_count'], combined_data['death_count'], gridsize=50, cmap='Reds', mincnt=1)
+plt.colorbar(label='Counts in Bin')
+plt.title('Heatmap of Case Count and Death Count')
+plt.xlabel('Case Count')
+plt.ylabel('Death Count')
+plt.grid(True)
+plt.show()
+
