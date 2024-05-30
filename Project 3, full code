@@ -1,0 +1,74 @@
+import pandas as pd
+import matplotlib.pyplot as plt
+import seaborn as sns
+from sklearn.model_selection import train_test_split
+from sklearn.linear_model import LinearRegression
+from sklearn.metrics import mean_squared_error, r2_score
+from sklearn.ensemble import RandomForestRegressor
+
+
+cases_df = pd.read_csv(r"C:\Users\lexiw\OneDrive\Desktop\COVID-19_Cases_Among_Healthcare_Personnel__by_week_-_ARCHIVED_20240514.csv")
+deaths_df = pd.read_csv(r"C:\Users\lexiw\OneDrive\Desktop\COVID-19_Deaths_Among_Healthcare_Personnel__by_week_-_ARCHIVED_20240514.csv")
+
+
+# Merge the datasets with the column of MMWR_week
+combined_data = pd.merge(cases_df, deaths_df, on="MMWR_week", suffixes=('_cases', '_deaths'))
+
+# Dropping the rest of the columns we are not using
+columns_to_drop = ['year_cases', 'week_start_date_cases', 'week_end_date_cases', 
+                   'year_deaths', 'week_start_date_deaths', 'week_end_date_deaths', 'perc_death_known', 'perc_hcw_known']
+combined_data.drop(columns=columns_to_drop, inplace=True)
+combined_data['death_count'] = combined_data['death_count'].replace('<5', '2').astype(int)
+ # New CSV 
+output_path = "Combined_Healthcare_Data.csv"  
+combined_data.to_csv(output_path, index=False)
+print(f"Data successfully saved to {output_path}.")
+
+# Going over the relationship between case_count and death_count
+correlation_updated = combined_data[['case_count', 'death_count']].corr()
+
+plt.figure(figsize=(10, 6))
+plt.scatter(combined_data['case_count'], combined_data['death_count'], alpha=0.5)
+plt.title('Scatter Plot of Case Count vs. Death Count')
+plt.xlabel('Case Count')
+plt.ylabel('Death Count')
+plt.grid(True)
+plt.show()
+print("Correlation matrix:\n", correlation_updated)
+
+
+# ---------------------------------------------------------------------------
+import pandas as pd
+import matplotlib.pyplot as plt
+import seaborn as sns
+
+
+bins = pd.cut(combined_data['case_count'], bins=[0, 5000, 10000, 20000, 30000, 40000])
+grouped_data = combined_data.groupby(bins)['death_count'].mean().reset_index()
+
+plt.figure(figsize=(10, 6))
+sns.barplot(x='case_count', y='death_count', data=grouped_data)
+plt.title('Average Death Count by Case Count Ranges')
+plt.xlabel('Case Count Ranges')
+plt.ylabel('Average Death Count')
+plt.xticks(rotation=45)
+plt.show()
+# -------------------------------------------------------------------------
+
+plt.figure(figsize=(10, 6))
+sns.regplot(x='case_count', y='death_count', data=combined_data, scatter_kws={'alpha':0.5}, line_kws={'color':'red'})
+plt.title('Scatter Plot of Case Count vs. Death Count with Regression Line')
+plt.xlabel('Case Count')
+plt.ylabel('Death Count')
+plt.grid(True)
+plt.show()
+# -------------------------------------------------------------------------
+plt.figure(figsize=(10, 6))
+plt.hexbin(combined_data['case_count'], combined_data['death_count'], gridsize=50, cmap='Reds', mincnt=1)
+plt.colorbar(label='Counts in Bin')
+plt.title('Heatmap of Case Count and Death Count')
+plt.xlabel('Case Count')
+plt.ylabel('Death Count')
+plt.grid(True)
+plt.show()
+
